@@ -2,10 +2,13 @@
 
 const devCerts = require("office-addin-dev-certs");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const CustomFunctionsMetadataPlugin = require("custom-functions-metadata-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 const urlDev = "https://localhost:3000/";
 const urlProd = "https://www.contoso.com/"; // CHANGE THIS TO YOUR PRODUCTION DEPLOYMENT LOCATION
+
+/* global require, module, process, __dirname */
 
 async function getHttpsOptions() {
   const httpsOptions = await devCerts.getHttpsServerOptions();
@@ -19,6 +22,7 @@ module.exports = async (env, options) => {
     devtool: "source-map",
     entry: {
       polyfill: ["core-js/stable", "regenerator-runtime/runtime"],
+      functions: "./src/functions/functions.ts",
       taskpane: "./src/taskpane/taskpane.ts",
       commands: "./src/commands/commands.ts",
     },
@@ -61,6 +65,15 @@ module.exports = async (env, options) => {
       ],
     },
     plugins: [
+      new CustomFunctionsMetadataPlugin({
+        output: "functions.json",
+        input: "./src/functions/functions.ts",
+      }),
+      new HtmlWebpackPlugin({
+        filename: "functions.html",
+        template: "./src/functions/functions.html",
+        chunks: ["polyfill", "functions"],
+      }),
       new HtmlWebpackPlugin({
         filename: "taskpane.html",
         template: "./src/taskpane/taskpane.html",
@@ -92,6 +105,7 @@ module.exports = async (env, options) => {
       }),
     ],
     devServer: {
+      static: [__dirname],
       headers: {
         "Access-Control-Allow-Origin": "*",
       },
