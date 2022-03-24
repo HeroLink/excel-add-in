@@ -105,10 +105,6 @@ export async function getWeather(city: string, country: string) {
     method,
     url: "https://community-open-weather-map.p.rapidapi.com/weather",
     params: { q: `${city},${country}`, units: "metric" },
-    headers: {
-      "X-RapidAPI-Host": "community-open-weather-map.p.rapidapi.com",
-      "X-RapidAPI-Key": "c244641161msh21571594dc86e0fp1643dfjsnac8252d67444",
-    },
   };
   await axios
     .request(options)
