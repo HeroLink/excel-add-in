@@ -61,6 +61,64 @@ export function increment(incrementBy: number, invocation: CustomFunctions.Strea
  */
 export function logMessage(message: string): string {
   console.log(message);
-
   return message;
+}
+
+import axios, { Method } from "axios";
+/**
+ * Gets the star count for a given org/user and repo. Try =GETSTARCOUNT("officedev","office-js")
+ * @customfunction
+ * @param userName Name of org or user.
+ * @param repoName Name of the repo.
+ * @return Number of stars.
+ */
+export async function getStarCount(userName = "OfficeDev", repoName = "office-js") {
+  //You can change this URL to any web request you want to work with.
+  let count = 0;
+  const options = {
+    url: `https://api.github.com/repos/${userName}/${repoName}`,
+  };
+  // console.log(options);
+  await axios
+    .request(options)
+    .then(function (response) {
+      console.log(response);
+      count = response.data.watchers_count;
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  return count;
+}
+
+/**
+ * Gets current weather data from Rapid API open-weather-map
+ * @customfunction
+ * @param city city name
+ * @param country country name
+ * @return weather
+ */
+export async function getWeather(city: string, country: string) {
+  let method: Method = "GET";
+  let temp = 0;
+  var options = {
+    method,
+    url: "https://community-open-weather-map.p.rapidapi.com/weather",
+    params: { q: `${city},${country}`, units: "metric" },
+    headers: {
+      "X-RapidAPI-Host": "community-open-weather-map.p.rapidapi.com",
+      "X-RapidAPI-Key": "c244641161msh21571594dc86e0fp1643dfjsnac8252d67444",
+    },
+  };
+  await axios
+    .request(options)
+    .then(function (response) {
+      let data = response.data;
+      console.log(data);
+      temp = data.main.temp.toFixed(2);
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
+  return `${temp} celsius`;
 }
