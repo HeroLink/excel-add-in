@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+const path = require("path");
 
 const devCerts = require("office-addin-dev-certs");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
@@ -32,6 +33,9 @@ module.exports = async (env, options) => {
     },
     resolve: {
       extensions: [".ts", ".tsx", ".html", ".js"],
+      alias: {
+        "@": path.resolve(__dirname, "src"),
+      },
     },
     module: {
       rules: [
@@ -63,6 +67,7 @@ module.exports = async (env, options) => {
           },
         },
       ],
+      noParse: [require.resolve("typescript/lib/typescript.js")],
     },
     plugins: [
       new CustomFunctionsMetadataPlugin({
@@ -103,6 +108,5 @@ module.exports = async (env, options) => {
       port: process.env.npm_package_config_dev_server_port || 3000,
     },
   };
-
   return config;
 };

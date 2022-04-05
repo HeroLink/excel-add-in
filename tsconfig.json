@@ -2,6 +2,11 @@
   "compilerOptions": {
     "allowJs": true,
     "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    },
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "jsx": "react",
@@ -14,13 +19,14 @@
       "dom"
     ]
   },
+  "include": [
+    "src/**/*",
+    "tests/**/*",
+  ],
   "exclude": [
     "node_modules",
     "dist",
     "lib",
     "lib-amd"
-  ],
-  "ts-node": { 
-    "files": true 
-  }
+  ]
 }

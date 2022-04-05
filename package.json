@@ -22,10 +22,9 @@
     "start:desktop": "office-addin-debugging start manifest.xml desktop",
     "start:web": "office-addin-debugging start manifest.xml web",
     "stop": "office-addin-debugging stop manifest.xml",
-    "test:e2e": "mocha -r ts-node/register test/end-to-end/*.ts",
-    "test:unit": "mocha -r ts-node/register test/unit/*.test.ts",
     "validate": "office-addin-manifest validate manifest.xml",
-    "watch": "webpack --mode development --watch"
+    "watch": "webpack --mode development --watch",
+    "test": "jest"
   },
   "dependencies": {
     "core-js": "^3.9.1",
@@ -33,8 +32,10 @@
   },
   "devDependencies": {
     "@babel/core": "^7.13.16",
+    "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.13.0",
     "@types/custom-functions-runtime": "^1.6.0",
+    "@types/jest": "^27.4.1",
     "@types/office-js": "^1.0.180",
     "@types/office-js-preview": "^1.0.290",
     "@types/office-runtime": "^1.0.17",
@@ -42,11 +43,15 @@
     "axios": "^0.26.1",
     "babel-loader": "^8.2.2",
     "copy-webpack-plugin": "^9.0.1",
+    "custom-functions-metadata": "^1.2.7",
     "custom-functions-metadata-plugin": "^1.2.5",
+    "eslint": "^7.32.0",
+    "eslint-plugin-jest": "^26.1.3",
     "eslint-plugin-office-addins": "^2.0.0",
     "file-loader": "^6.2.0",
     "html-loader": "^2.1.2",
     "html-webpack-plugin": "^5.3.2",
+    "jest": "^27.5.1",
     "office-addin-cli": "^1.3.5",
     "office-addin-debugging": "^4.3.8",
     "office-addin-dev-certs": "^1.7.7",
@@ -66,5 +71,8 @@
   "prettier": "office-addin-prettier-config",
   "browserslist": [
     "ie 11"
-  ]
+  ],
+  "browser": {
+    "fs": false
+  }
 }
