@@ -9,3 +9,4 @@
     * [Open Weather Map](https://rapidapi.com/community/api/open-weather-map)
 5. [jest](https://jestjs.io/docs/getting-started)
 6. [excel-win32-16.01.js](https://appsforoffice.microsoft.com/lib/beta/hosted/excel-win32-16.01.js)
+7. [webpack](https://webpack.js.org/configuration)

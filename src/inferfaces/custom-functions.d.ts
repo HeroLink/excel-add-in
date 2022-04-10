@@ -24,3 +24,13 @@ type CustomFunctionsRegistrationStatus = "good" | "skipped" | "error" | "untrust
 //   enabled: boolean;
 //   nativeRuntime?: boolean;
 // }
+export interface ICustomFunctionsIframeRunnerTypeScriptMetadata {
+  solutionId: string;
+  namespace: string;
+  functions: Array<{
+    fullId: string;
+    fullDisplayName: string;
+    javascriptFunctionName: string;
+  }>;
+  code: string;
+}

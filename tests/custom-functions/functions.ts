@@ -1,4 +1,5 @@
-/* global clearInterval, console, CustomFunctions, setInterval */
+/* global clearInterval, console, CustomFunctions, setInterval, fetch */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 /**
  * Adds two numbers.
@@ -7,7 +8,8 @@
  * @param second Second number
  * @returns The sum of the two numbers.
  */
-export function add(first: number, second: number): number {
+function add(first: number, second: number): number {
+  console.log("test");
   return first + second;
 }
 
@@ -16,7 +18,8 @@ export function add(first: number, second: number): number {
  * @customfunction
  * @param invocation Custom function handler
  */
-export function clock(invocation: CustomFunctions.StreamingInvocation<string>): void {
+function clock(invocation: CustomFunctions.StreamingInvocation<string>): void {
+  console.log("clock time");
   const timer = setInterval(() => {
     const time = currentTime();
     invocation.setResult(time);
@@ -31,7 +34,7 @@ export function clock(invocation: CustomFunctions.StreamingInvocation<string>): 
  * Returns the current time.
  * @returns String with the current time formatted for the current locale.
  */
-export function currentTime(): string {
+function currentTime(): string {
   return new Date().toLocaleTimeString();
 }
 
@@ -41,7 +44,7 @@ export function currentTime(): string {
  * @param incrementBy Amount to increment
  * @param invocation Custom function handler
  */
-export function increment(incrementBy: number, invocation: CustomFunctions.StreamingInvocation<number>): void {
+function increment(incrementBy: number, invocation: CustomFunctions.StreamingInvocation<number>): void {
   let result = 0;
   const timer = setInterval(() => {
     result += incrementBy;
@@ -59,12 +62,11 @@ export function increment(incrementBy: number, invocation: CustomFunctions.Strea
  * @param message String to write.
  * @returns String to write.
  */
-export function logMessage(message: string): string {
+function logMessage(message: string): string {
   console.log(message);
   return message;
 }
 
-import axios, { Method } from "axios";
 /**
  * Gets the star count for a given org/user and repo. Try =GETSTARCOUNT("officedev","office-js")
  * @customfunction
@@ -72,23 +74,21 @@ import axios, { Method } from "axios";
  * @param repoName Name of the repo.
  * @return Number of stars.
  */
-export async function getStarCount(userName = "OfficeDev", repoName = "office-js") {
+async function getStarCount(userName = "OfficeDev", repoName = "office-js") {
   //You can change this URL to any web request you want to work with.
-  let count = 0;
-  const options = {
-    url: `https://api.github.com/repos/${userName}/${repoName}`,
-  };
-  // console.log(options);
-  await axios
-    .request(options)
-    .then(function (response) {
-      console.log(response);
-      count = response.data.watchers_count;
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-  return count;
+  try {
+    const url = `https://api.github.com/repos/${userName}/${repoName}`;
+    const response = await fetch(url);
+    console.log(response);
+    //Expect that status code is in 200-299 range
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+    const jsonResponse = await response.json();
+    return jsonResponse.watchers_count;
+  } catch (error) {
+    return error;
+  }
 }
 
 /**
@@ -98,27 +98,27 @@ export async function getStarCount(userName = "OfficeDev", repoName = "office-js
  * @param country country name
  * @return weather
  */
-export async function getWeather(city: string, country: string) {
-  let method: Method = "GET";
-  let temp = 0;
-  var options = {
-    method,
-    url: "https://community-open-weather-map.p.rapidapi.com/weather",
-    params: { q: `${city},${country}`, units: "metric" },
+async function getWeather(city: string, country: string) {
+  // %2C means ','
+  const url = `https://community-open-weather-map.p.rapidapi.com/weather?q=${city}%2C${country}&units=metric`;
+  const options = {
+    method: "GET",
     headers: {
       "X-RapidAPI-Host": "community-open-weather-map.p.rapidapi.com",
       "X-RapidAPI-Key": "c244641161msh21571594dc86e0fp1643dfjsnac8252d67444",
     },
   };
-  await axios
-    .request(options)
-    .then(function (response) {
-      let data = response.data;
-      console.log(data);
-      temp = data.main.temp.toFixed(2);
+  let temp = 0;
+  await fetch(url, options)
+    .then((response) => response.json())
+    .then((response) => {
+      console.log(response);
+      temp = response.main.temp.toFixed(2);
+      console.log(temp);
     })
-    .catch(function (error) {
+    .catch((error) => {
       console.error(error);
+      return error;
     });
-  return `${temp} celsius`;
+  return `${temp} Celsius`;
 }

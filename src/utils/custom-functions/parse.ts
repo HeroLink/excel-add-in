@@ -1,5 +1,5 @@
 import ts from "typescript";
-import { parseTree, IFunction } from "custom-functions-metadata";
+import { IFunction, parseTree } from "./generate/generate";
 import { strictType } from "../common/misc";
 import { ICustomFunctionParseResult } from "@/inferfaces/custom-functions";
 
