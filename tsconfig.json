@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "strict": false, // temporarily false
     "allowJs": true,
     "baseUrl": ".",
     "paths": {
@@ -21,7 +22,7 @@
   },
   "include": [
     "src/**/*",
-    "tests/**/*",
+    "tests/**/*"
   ],
   "exclude": [
     "node_modules",

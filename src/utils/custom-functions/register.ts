@@ -49,11 +49,6 @@ async function registerCustomFunctions(
   }
 }
 
-// async function getRegistrationResult(file: File): Promise<{
-// async function getRegistrationResult(
-//   dir: string,
-//   fileName: string
-// )
 async function getRegistrationResult(fileContent: string): Promise<{
   parseResults: Array<ICustomFunctionParseResult<IFunction>>;
   code: string;
@@ -67,19 +62,6 @@ async function getRegistrationResult(fileContent: string): Promise<{
     options: {},
   };
   const namespace = getNamespace();
-  // const reader = new FileReader();
-  // reader.readAsText(file);
-  // // reader.addEventListener(
-  // //   "load",
-  // //   () => {
-  // //     if (file) {
-  // //       reader.readAsText(file);
-  // //     }
-  // //   },
-  // //   false
-  // // );
-  // const fileContent = reader.result.toString();
-  // const fileContent = fs.readFileSync(`${dir}/${fileName}`).toString();
   const functions: Array<ICustomFunctionParseResult<IFunction>> = parseMetadata({
     solution,
     namespace,
@@ -92,7 +74,7 @@ async function getRegistrationResult(fileContent: string): Promise<{
   if (!hasErrors) {
     try {
       snippetCode = compileScript(fileContent);
-      console.log(snippetCode);
+      // console.log(snippetCode);
       code.push(
         wrapCustomFunctionSnippetCode(
           snippetCode,
@@ -134,7 +116,7 @@ async function getMetadata(fileContent: string) {
       return ret;
     }
 
-    console.log("解析metadata", metadata);
+    console.log("Parse metadata", metadata);
     ret = strictType<ICustomFunctionsIframeRunnerTypeScriptMetadata>({
       solutionId: solution.name,
       namespace: namespace,
@@ -189,28 +171,28 @@ async function addIframe(typescriptMetadata: ICustomFunctionsIframeRunnerTypeScr
 
 /**
  * dynamically reigister custom fusction
- * @param file the custom function code file
+ * @param fileContent the custom function code file content
  */
-// export async function dynamicRegisterCF(file: File) {
-// export async function dynamicRegisterCF(dir: string, fileName: string) {
 export async function dynamicRegisterCF(fileContent: string) {
   // const engineStatus = await getCustomFunctionEngineStatusSafe();
-  // const { parseResults, code } = await getRegistrationResult(file);
-  // const { parseResults, code } = await getRegistrationResult(dir, fileName);
+  // parse custom functions file
   const { parseResults, code } = await getRegistrationResult(fileContent);
-  console.log("functions文件转化结果", parseResults);
-  console.log("functions文件代码", code);
+  console.log("Parsed results", parseResults);
+  // console.log("Codes in file", code);
   if (parseResults.length > 0) {
+    // do registration
     await registerCustomFunctions(parseResults, code);
-    console.log("functions注册成功");
+    console.log("Register custom functions successfully!");
   }
+  // add iframe runner
   tryCatch(async () => {
     const CustomFunctionsDictionary = {};
     (window as any).CustomFunctionsDictionary = CustomFunctionsDictionary;
     const typescriptMetadata = await getMetadata(fileContent);
-    console.log("得到typescriptMetadata", typescriptMetadata);
+    console.log("Get typescriptMetadata", typescriptMetadata);
     await addIframe(typescriptMetadata);
     console.log("CustomFunctionsDictionary", CustomFunctionsDictionary);
+    // associate functions' id and name
     for (const key in CustomFunctionsDictionary) {
       CustomFunctions.associate(key, CustomFunctionsDictionary[key]);
       console.log("key", key);

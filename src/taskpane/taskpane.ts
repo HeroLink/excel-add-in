@@ -4,16 +4,13 @@
  */
 import { dynamicRegisterCF } from "@/utils/custom-functions/register";
 
-/* global console, document, Excel, Office */
-// let file: File;
-import axios from "axios";
+/* global console, document, Excel, Office, fetch*/
 
 Office.onReady((info) => {
   if (info.host === Office.HostType.Excel) {
     document.getElementById("sideload-msg").style.display = "none";
     document.getElementById("app-body").style.display = "flex";
     document.getElementById("run").onclick = run;
-    // file = (document.getElementById("file") as HTMLInputElement).files[0];
   }
 });
 
@@ -41,15 +38,16 @@ export async function run() {
       //   ["I am", "Chen", "Lu"],
       //   ["You can", "call me", "Link Chen"],
       // ];
-      // dynamicRegisterCF(file);
-      // const dir = "tests/custom-functions/samples";
-      // const fileName = "functions.ts";
-      // dynamicRegisterCF(dir, fileName);
-      await axios.get("https://localhost:3000/tests/custom-functions/functions.ts").then((res) => {
-        console.log("读取functions文件", res);
-        const data = res.data;
-        dynamicRegisterCF(data);
-      });
+
+      // await fetch("https://localhost:3000/tests/custom-functions/functions.ts")
+      //   .then((res) => {
+      //     console.log("Fetch function.ts", res);
+      //     return res.text();
+      //   })
+      //   .then((data) => {
+      //     // console.log("Read functions.ts", data);
+      //     dynamicRegisterCF(data);
+      //   });
     });
   } catch (error) {
     console.error(error);

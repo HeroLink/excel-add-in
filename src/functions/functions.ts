@@ -1,124 +1,140 @@
-﻿// /* global clearInterval, console, CustomFunctions, setInterval */
+﻿// Comment all codes intentionally, dynamically reigster custom functions
+/* global console, Excel */
 
-// /**
-//  * Adds two numbers.
-//  * @customfunction
-//  * @param first First number
-//  * @param second Second number
-//  * @returns The sum of the two numbers.
-//  */
-// export function add(first: number, second: number): number {
-//   return first + second;
-// }
+import Recognizers from "@microsoft/recognizers-text-suite/dist/recognizers-text-suite.es5";
 
-// /**
-//  * Displays the current time once a second.
-//  * @customfunction
-//  * @param invocation Custom function handler
-//  */
-// export function clock(invocation: CustomFunctions.StreamingInvocation<string>): void {
-//   const timer = setInterval(() => {
-//     const time = currentTime();
-//     invocation.setResult(time);
-//   }, 1000);
+/**
+ * This recognizer will find any dimension presented. E.g. "My house is 20 km from my school".
+ * Limitations of calling Excel JavaScript APIs through a custom function
+ * =XLP.GETDIMENSION("My house is 20 km from my school")
+ * =XLP.GETDIMENSION("B2")
+ * @customfunction
+ * @param address The address of the cell contains dimensions.
+ * @returns Recognized results.
+ */
+export async function getDimension(address: string) {
+  // console.log(Recognizers);
+  try {
+    const context = new Excel.RequestContext();
+    let range = context.workbook.worksheets.getActiveWorksheet().getRange(address);
+    range.load("values");
+    await context.sync();
+    let value = range.values[0][0];
+    console.log("Get cell value", value);
+    // let value = sentence;
+    if (value) {
+      let results = Recognizers.recognizeDimension(value, Recognizers.Culture.English);
+      console.log("Recognized result", results);
+      if (results) {
+        const result = results[0];
+        const resolution: Excel.EntityCellValue = {
+          type: Excel.CellValueType.entity,
+          text: "resolution",
+          properties: { value: result.resolution.value, unit: result.resolution.unit },
+          basicType: Excel.RangeValueType.error,
+          basicValue: "#VALUE!",
+        };
+        const myEntity: Excel.EntityCellValue = {
+          type: Excel.CellValueType.entity,
+          text: "dimension",
+          properties: {
+            start: result.start,
+            end: result.end,
+            resolution,
+            text: result.text,
+            typeName: result.typeName,
+          },
+          basicType: Excel.RangeValueType.error, // A readonly property. Used as a fallback in incompatible scenarios.
+          basicValue: "#VALUE!", // A readonly property. Used as a fallback in incompatible scenarios.
+        };
+        range = context.workbook.getSelectedRange();
+        range.valuesAsJson = [[myEntity]];
+        await context.sync();
+      }
+    }
+  } catch (error) {
+    return error;
+  }
+}
 
-//   invocation.onCanceled = () => {
-//     clearInterval(timer);
-//   };
-// }
+/**
+ * Take a number as the input value and return a formatted number value as the output.
+ * @customfunction
+ * @param {number} value
+ * @param {string} format (e.g. "0.00%")
+ * @returns A formatted number value.
+ */
+export function createFormattedNumber(value, format) {
+  return {
+    type: "FormattedNumber",
+    basicValue: value,
+    numberFormat: format,
+  };
+}
 
-// /**
-//  * Returns the current time.
-//  * @returns String with the current time formatted for the current locale.
-//  */
-// export function currentTime(): string {
-//   return new Date().toLocaleTimeString();
-// }
+/**
+ * Accept an entity value data type as a function input.
+ * @customfunction
+ * @param {any} value
+ * @param {string} attribute
+ * @returns {any} The text value of the entity.
+ */
+export function getEntityAttribute(value, attribute) {
+  if (value.type == "Entity") {
+    if (attribute == "text") {
+      return value.text;
+    } else {
+      return value.properties[attribute].basicValue;
+    }
+  } else {
+    return JSON.stringify(value);
+  }
+}
 
-// /**
-//  * Increments a value once a second.
-//  * @customfunction
-//  * @param incrementBy Amount to increment
-//  * @param invocation Custom function handler
-//  */
-// export function increment(incrementBy: number, invocation: CustomFunctions.StreamingInvocation<number>): void {
-//   let result = 0;
-//   const timer = setInterval(() => {
-//     result += incrementBy;
-//     invocation.setResult(result);
-//   }, 1000);
-
-//   invocation.onCanceled = () => {
-//     clearInterval(timer);
-//   };
-// }
-
-// /**
-//  * Writes a message to console.log().
-//  * @customfunction LOG
-//  * @param message String to write.
-//  * @returns String to write.
-//  */
-// export function logMessage(message: string): string {
-//   console.log(message);
-//   return message;
-// }
-
-// import axios, { Method } from "axios";
-// /**
-//  * Gets the star count for a given org/user and repo. Try =GETSTARCOUNT("officedev","office-js")
-//  * @customfunction
-//  * @param userName Name of org or user.
-//  * @param repoName Name of the repo.
-//  * @return Number of stars.
-//  */
-// export async function getStarCount(userName = "OfficeDev", repoName = "office-js") {
-//   //You can change this URL to any web request you want to work with.
-//   let count = 0;
-//   const options = {
-//     url: `https://api.github.com/repos/${userName}/${repoName}`,
-//   };
-//   // console.log(options);
-//   await axios
-//     .request(options)
-//     .then(function (response) {
-//       console.log(response);
-//       count = response.data.watchers_count;
-//     })
-//     .catch(function (error) {
-//       console.log(error);
-//     });
-//   return count;
-// }
-
-// /**
-//  * Gets current weather data from Rapid API open-weather-map
-//  * @customfunction
-//  * @param city city name
-//  * @param country country name
-//  * @return weather
-//  */
-// export async function getWeather(city: string, country: string) {
-//   let method: Method = "GET";
-//   let temp = 0;
-//   var options = {
-//     method,
-//     url: "https://community-open-weather-map.p.rapidapi.com/weather",
-//     params: { q: `${city},${country}`, units: "metric" },
-//     headers: {
-//       "X-RapidAPI-Host": "community-open-weather-map.p.rapidapi.com",
-//       "X-RapidAPI-Key": "c244641161msh21571594dc86e0fp1643dfjsnac8252d67444",
-//     },
-//   };
-//   await axios
-//     .request(options)
-//     .then(function (response) {
-//       let data = response.data;
-//       console.log(data);
-//       temp = data.main.temp.toFixed(2);
-//     })
-//     .catch(function (error) {
-//       console.error(error);
-//     });
-//   return `${temp} celsius`;
-// }
+/**
+ * Return an entity
+ * @customfunction
+ * @param address The address of the cell.
+ * @returns {any} The entity.
+ */
+export async function getEntity(address: string) {
+  // This is an example of the complete JSON of a formatted number value.
+  // In this case, the number is formatted as a date.
+  const myDate: Excel.FormattedNumberCellValue = {
+    type: Excel.CellValueType.formattedNumber,
+    basicValue: 32889.0,
+    basicType: Excel.RangeValueType.double, // A readonly property. Used as a fallback in incompatible scenarios.
+    numberFormat: "m/d/yyyy",
+  };
+  // This is an example of the complete JSON for a web image.
+  const myImage: Excel.WebImageCellValue = {
+    type: Excel.CellValueType.webImage,
+    address: "https://th.bing.com/th/id/OIP.PyC2GZtQNUMjUSW3ExgpeAHaE8?w=257&h=180&c=7&r=0&o=5&dpr=1.1&pid=1.7",
+    basicType: Excel.RangeValueType.error, // A readonly property. Used as a fallback in incompatible scenarios.
+    basicValue: "#VALUE!", // A readonly property. Used as a fallback in incompatible scenarios.
+  };
+  // This is an example of the complete JSON for an entity value.
+  // The entity contains text and properties which contain an image, a date, and another text value.
+  const myEntity: Excel.EntityCellValue = {
+    type: Excel.CellValueType.entity,
+    text: "A llama",
+    properties: {
+      image: myImage,
+      "start date": myDate,
+      quote: {
+        type: Excel.CellValueType.string,
+        basicValue: "I love llamas.",
+      },
+    },
+    basicType: Excel.RangeValueType.error, // A readonly property. Used as a fallback in incompatible scenarios.
+    basicValue: "#VALUE!", // A readonly property. Used as a fallback in incompatible scenarios.
+  };
+  try {
+    const context = new Excel.RequestContext();
+    const range = context.workbook.worksheets.getActiveWorksheet().getRange(address);
+    range.valuesAsJson = [[myEntity]];
+    await context.sync();
+  } catch (error) {
+    return error;
+  }
+}

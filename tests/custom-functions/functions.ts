@@ -9,7 +9,6 @@
  * @returns The sum of the two numbers.
  */
 function add(first: number, second: number): number {
-  console.log("test");
   return first + second;
 }
 
@@ -19,7 +18,6 @@ function add(first: number, second: number): number {
  * @param invocation Custom function handler
  */
 function clock(invocation: CustomFunctions.StreamingInvocation<string>): void {
-  console.log("clock time");
   const timer = setInterval(() => {
     const time = currentTime();
     invocation.setResult(time);
