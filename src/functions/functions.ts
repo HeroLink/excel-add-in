@@ -1,5 +1,6 @@
 ﻿// Comment all codes intentionally, dynamically reigster custom functions
 /* global console, Excel */
+// @ts-nocheck
 
 import Recognizers from "@microsoft/recognizers-text-suite/dist/recognizers-text-suite.es5";
 
@@ -13,7 +14,7 @@ import Recognizers from "@microsoft/recognizers-text-suite/dist/recognizers-text
  * @returns Recognized results.
  */
 export async function getDimension(address: string) {
-  // console.log(Recognizers);
+  console.log(Recognizers);
   try {
     const context = new Excel.RequestContext();
     let range = context.workbook.worksheets.getActiveWorksheet().getRange(address);
@@ -102,9 +103,9 @@ export async function getEntity(address: string) {
   // In this case, the number is formatted as a date.
   const myDate: Excel.FormattedNumberCellValue = {
     type: Excel.CellValueType.formattedNumber,
-    basicValue: 32889.0,
+    basicValue: 43830.0,
     basicType: Excel.RangeValueType.double, // A readonly property. Used as a fallback in incompatible scenarios.
-    numberFormat: "m/d/yyyy",
+    numberFormat: "yyyy-mm-dd",
   };
   // This is an example of the complete JSON for a web image.
   const myImage: Excel.WebImageCellValue = {
@@ -117,13 +118,14 @@ export async function getEntity(address: string) {
   // The entity contains text and properties which contain an image, a date, and another text value.
   const myEntity: Excel.EntityCellValue = {
     type: Excel.CellValueType.entity,
-    text: "A llama",
+    text: "COVID-19",
     properties: {
-      image: myImage,
-      "start date": myDate,
-      quote: {
+      Image: myImage,
+      "Start Date": myDate,
+      Infomation: {
         type: Excel.CellValueType.string,
-        basicValue: "I love llamas.",
+        basicValue:
+          "The COVID-19 pandemic is an ongoing global pandemic caused by severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2)",
       },
     },
     basicType: Excel.RangeValueType.error, // A readonly property. Used as a fallback in incompatible scenarios.
